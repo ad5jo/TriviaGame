@@ -61,7 +61,7 @@ function function_timeout_question()
   else
   {
     i_seconds_remaining--;
-    $("#game_status").text(i_seconds_remaining);
+    $("#game_status").text(" Time remaining: " + i_seconds_remaining);
     var i_ms =  1000;
     o_timer = setTimeout(function_timeout_question, i_ms);
   }
@@ -77,26 +77,34 @@ function function_next_question()
 
   // 1.
   $("#q1").remove();
-  $("#c1").remove();
+
   $("#a1").remove();
   $("#debug").remove();
   $("#finished_button").remove();
   $("#message_missed").remove();
 
+
+    //var i_max = questions.lenght();
+
+    if (question_index > 2 )
+    {
+      function_game_over();
+    }
+
+
   // 2.
           $("#button_begin").hide();
           $("#thebody").append("<div id=" + "q1" + ">" + questions[question_index].question + "</div>");
-          
-          $("#thebody").append("<div id=" + "c1" + ">" + 
-            "1: "+ questions[question_index].choices[0] +
-             "   2: "+ questions[question_index].choices[1] +
-             "   3: "+ questions[question_index].choices[2] +
-             "</div>");
-          
-          var s_radio_buttons = "<div id=" + "a1" + ">" +'<INPUT TYPE="Radio" name="answer" value="1">1' +'<INPUT TYPE="Radio" name="answer" value="2">2'+'<INPUT TYPE="Radio" name="answer" value="3">3' +"</div>";
+
+          var s_radio_buttons = 
+          "<div id=" + "a1" + ">" +
+          '<INPUT TYPE="Radio" name="answer" value="1">1: ' + questions[question_index].choices[0] + "  " +
+          '<INPUT TYPE="Radio" name="answer" value="2">2: '+ questions[question_index].choices[1] +"  " +
+          '<INPUT TYPE="Radio" name="answer" value="3">3: ' + questions[question_index].choices[2] +"  " +
+          "</div>";
+
           $("#thebody").append(s_radio_buttons);
 
-          //var s_done_button = "<a class=\"btn btn-primary btn-sm\" id=\"finished_button\" role=\"button\">Finished</a>";
   // 3.
           var s_done_button = "<a class=\"btn btn-primary btn-sm\" id=\"finished_button\" role=\"button\">Finished</a> ";
           $("#thebody").append(s_done_button);
@@ -129,7 +137,11 @@ function function_next_question()
       question_index++;
 } // end function next question
 
+function function_game_over()
+{
+  $("#game_status").text("Game over");
 
+}
 
 
 
