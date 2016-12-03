@@ -3,63 +3,21 @@
 
 
 $(document).ready(function(){
-
+  
     $("#button_begin").click(
       function(){
-          // $("#button_begin").hide();
-          $("#thebody").append("<div id=" + "q1" + ">" + questions[0].question + "</div>");
-          var s_radio_buttons = '<INPUT TYPE="Radio" Name="answer" Value="CC">Credit Card' +'<INPUT TYPE="Radio" Name="answer" Value="DC">Debit Card'+'<INPUT TYPE="Radio" Name="answer" Value="PP">PayPal';
-          $("#thebody").append(s_radio_buttons);
-
-          var s_done_button = "<a class=\"btn btn-primary btn-sm\" id=\"finished_button\" role=\"button\">Finished</a>";
-          $("#thebody").append(s_done_button);
-              $("#finished_button").click(
-
-              function(){
-                var x=0;
-                // $("#thebody").append("answer is " + answer);
-              //}
-                for (i = 0; i < 3; i++) {
-                  question_index = i;
-                  choices_[question_index] = +$('input[name="answer"]:checked'); //.val()
-                  // $('input[name="answer"]:checked').val();
-                  // if ( $("Radio").answer[i].checked ) {
-                  //   answer = $("Radio").answer[i].Value;
-                  //   break;
-                  // }
-                }
-                $("#thebody").append("answer is " + choices_);
-              }
-              
-            );
-
-      }
-    );
-
-    $("#finished_button").click(
-
-      function(){
-        var x=0;
-        $("#thebody").append("answer is " );
-      }
-      //   for (i = 0; i < 3; i++) {
-      //     if ( document.answer[i].checked ) {
-      //       answer = document.answer[i].value;
-      //       break;
-      //     };
-      //   };
-      // }
-      // $("#thebody").append("answer is " );
-    );
-
-	// document.onkeyup = function(event) {
-
- //    	console.log(event.key);
-
- //    }; // end of document.onkeyup
-main();
+        debugger;
+        $("#q1").remove();
+        $("#a1").remove();
+        $("#message_missed").remove();
+      });
+    $("#thebody").append("<div id=" + "game_status" + ">" +"You will have 30 seconds to answer each question" + "</div>");
+ 
+  function_next_question();
 
 });
+
+//////////////////////////////////////////////////////////////////////////////////////////////
 
 
   var questions = [
@@ -83,158 +41,95 @@ main();
 
   
   var question_index = 0;
-  var choices_ = []; //Array containing user choices
-  var quiz = $('#quiz'); //Quiz div object
-  
+  var missed = 0;
+  var correct = 0;
+  var i_seconds_remaining = 30;
+  var o_timer = 0;
   // Display initial question
-  displayNext();
+  //displayNext();
   
-
-
-
-
-function main()
-{ // begin main
-
-  // Click handler for the 'next' button
-  $('#next').on('click', function (event) {
-    event.preventDefault();
-    
-    // Suspend click listener during fade animation
-    if(quiz.is(':animated')) {        
-      return false;
-    }
-    choose();
-    
-    // If no user selection, progress is stopped
-    if (isNaN(choices_[question_index])) {
-      alert('Please make a selection!');
-    } else {
-      question_index++;
-      displayNext();
-    }
-  });
+function function_timeout_question()
+{
   
-  // Click handler for the 'prev' button
-  $('#prev').on('click', function (e) {
-    e.preventDefault();
-    
-    if(quiz.is(':animated')) {
-      return false;
-    }
-    choose();
-    question_index--;
-    displayNext();
-  });
-  
-  // Click handler for the 'Start Over' button
-  $('#start').on('click', function (e) {
-    e.preventDefault();
-    
-    if(quiz.is(':animated')) {
-      return false;
-    }
-    question_index = 0;
-    choices_ = [];
-    displayNext();
-    $('#start').hide();
-  });
-  
-  // Animates buttons on hover
-  $('.button').on('mouseenter', function () {
-    $(this).addClass('active');
-  });
-  $('.button').on('mouseleave', function () {
-    $(this).removeClass('active');
-  });
-  
-
-} // end of main
-
-
-
-  // Creates and returns the div that contains the questions and 
-  // the answer choices_
-  function createQuestionElement(index) {
-    var qElement = $('<div>', {
-      id: 'question'
-    });
-    
-    var header = $('<h2>Question ' + (index + 1) + ':</h2>');
-    qElement.append(header);
-    
-    var question = $('<p>').append(questions[index].question);
-    qElement.append(question);
-    
-    var radioButtons = createRadios(index);
-    qElement.append(radioButtons);
-    
-    return qElement;
+  if (i_seconds_remaining === 0)
+  {
+    $("#game_status").text("--- Time Ran Out ---");
+    $("#thebody").append("<div id=" + "message_missed" + ">" + "Missed "+ question_index +" one" + "</div>");
+    question_index++;
+    missed++;
   }
-  
-  // Creates a list of the answer choices as radio inputs
-  function createRadios(index) {
-    var radioList = $('<ul>');
-    var item;
-    var input = '';
-    for (var i = 0; i < questions[index].choices.length; i++) {
-      item = $('<li>');
-      input = '<input type="radio" name="answer" value=' + i + ' />';
-      input += questions[index].choices[i];
-      item.append(input);
-      radioList.append(item);
-    }
-    return radioList;
+  else
+  {
+    i_seconds_remaining--;
+    $("#game_status").text(i_seconds_remaining);
+    var i_ms =  1000;
+    o_timer = setTimeout(function_timeout_question, i_ms);
   }
-  
-  // Reads the user selection and pushes the value to an array
-  function choose() {
-    choices_[question_index] = +$('input[name="answer"]:checked').val();
-  }
-  
-  // Displays next requested element
-  function displayNext() {
-    quiz.fadeOut(function() {
-      $('#question').remove();
-      
-      if(question_index < questions.length){
-        var nextQuestion = createQuestionElement(question_index);
-        quiz.append(nextQuestion).fadeIn();
-        if (!(isNaN(choices_[question_index]))) {
-          $('input[value='+choices_[question_index]+']').prop('checked', true);
-        }
-        
-        // Controls display of 'prev' button
-        if(question_index === 1){
-          $('#prev').show();
-        } else if(question_index === 0){
+}
+
+function function_next_question()
+{
+  // 1. clear the last question
+  // 2. post the next
+  // 3. create finished button
+  // 4. register the finished event click
+  // 5. start the timer
+
+  // 1.
+  $("#q1").remove();
+  $("#c1").remove();
+  $("#a1").remove();
+  $("#debug").remove();
+  $("#finished_button").remove();
+  $("#message_missed").remove();
+
+  // 2.
+          $("#button_begin").hide();
+          $("#thebody").append("<div id=" + "q1" + ">" + questions[question_index].question + "</div>");
           
-          $('#prev').hide();
-          $('#next').show();
-        }
-      }else {
-        var scoreElem = displayScore();
-        quiz.append(scoreElem).fadeIn();
-        $('#next').hide();
-        $('#prev').hide();
-        $('#start').show();
-      }
-    });
-  }
-  
-  // Computes score and returns a paragraph element to be displayed
-  function displayScore() {
-    var score = $('<p>',{id: 'question'});
-    
-    var numCorrect = 0;
-    for (var i = 0; i < choices_.length; i++) {
-      if (choices_[i] === questions[i].correctAnswer) {
-        numCorrect++;
-      }
-    }
-    
-    score.append('You got ' + numCorrect + ' questions out of ' +
-                 questions.length + ' right!!!');
-    return score;
-  };
+          $("#thebody").append("<div id=" + "c1" + ">" + 
+            "1: "+ questions[question_index].choices[0] +
+             "   2: "+ questions[question_index].choices[1] +
+             "   3: "+ questions[question_index].choices[2] +
+             "</div>");
+          
+          var s_radio_buttons = "<div id=" + "a1" + ">" +'<INPUT TYPE="Radio" name="answer" value="1">1' +'<INPUT TYPE="Radio" name="answer" value="2">2'+'<INPUT TYPE="Radio" name="answer" value="3">3' +"</div>";
+          $("#thebody").append(s_radio_buttons);
+
+          //var s_done_button = "<a class=\"btn btn-primary btn-sm\" id=\"finished_button\" role=\"button\">Finished</a>";
+  // 3.
+          var s_done_button = "<a class=\"btn btn-primary btn-sm\" id=\"finished_button\" role=\"button\">Finished</a> ";
+          $("#thebody").append(s_done_button);
+
+
+
+  // 4.
+      $("#finished_button").click(
+      function(){
+        // clear the timer
+        // get the value of the radio button
+        // check the answer for correct or incorrect (missed++ or correct++)
+        // if incorrect then display the correct answer
+        // if correct display the next question
+
+        clearTimeout(o_timer);
+        i_seconds_remaining = 30;
+        var s_i_val = $('input[name="answer"]:checked').val();
+        $("#game_status").text("You selected: " + s_i_val);
+        function_next_question();
+      });
+
+
+      var i_correct = 1 + questions[question_index].correctAnswer
+
+      $("#thebody").append("<div id=debug >" + "DEBUG: The correct answer is " + i_correct) + "</div>";
+
+  // 5.
+      o_timer = setTimeout(function_timeout_question, 1000);
+      question_index++;
+} // end function next question
+
+
+
+
 
