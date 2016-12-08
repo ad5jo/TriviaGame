@@ -1,22 +1,37 @@
 // Dave Durkee
 // 11.20.2016
 
+  var question_index = 0;
+  var missed = 0;
+  var correct = 0;
+  var i_seconds_remaining = 30;
+  var o_timer = 0;
+  var the_correct_answer = -1;
+
 
 $(document).ready(function(){
-  
-    $("#button_begin").click(
-      function(){
-        debugger;
-        $("#q1").remove();
-        $("#a1").remove();
-        $("#message_missed").remove();
-      });
-    $("#thebody").append("<div id=" + "game_status" + ">" +"You will have 30 seconds to answer each question" + "</div>");
- 
-  function_next_question();
-
+  function_reset_game_variables();
+  function_display_initial_screen();
 });
 
+
+  function function_display_initial_screen ()
+  {
+        $("#button_begin").click(
+      function(){
+        $("#q1").remove();
+        $("#a1").remove();
+        $("#play_again_button").remove();
+        $("#game_status").remove();
+        $("#correct_answer_id").remove();
+        $("#message_missed").remove();
+        $("#thebody").append("<div id=" + "game_status" + ">" + "You will have 30 seconds to answer each question" + "</div>");
+ 
+      });
+
+
+  function_next_question();
+  }
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -26,7 +41,7 @@ $(document).ready(function(){
     choices: ["William Shatner","Richard Lutz","David Eddings"],
     correctAnswer: 0
   }, 
-
+//var i_correct_number = questions[question_index].correctAnswer
   {
     question: "What is the name of the actor who played Spock?",
     choices: ["Gene Roddenberry","DeForest Kelley","Leonard Nimoy"],
@@ -40,14 +55,7 @@ $(document).ready(function(){
   ];
 
   
-  var question_index = 0;
-  var missed = 0;
-  var correct = 0;
-  var i_seconds_remaining = 30;
-  var o_timer = 0;
-  // Display initial question
-  //displayNext();
-  
+
 function function_timeout_question()
 {
   
@@ -67,20 +75,21 @@ function function_timeout_question()
   }
 }
 
+
 function function_next_question()
 {
   // 1. clear the last question
   // 2. post the next
-  // 3. create finished button
-  // 4. register the finished event click
+  // 3. create next question button
+  // 4. register the next question event click
   // 5. start the timer
 
   // 1.
   $("#q1").remove();
-
+  $("#play_again_button").remove();
   $("#a1").remove();
-  $("#debug").remove();
-  $("#finished_button").remove();
+  $("#correct_answer_id").remove();
+  $("#next_question_button").remove();
   $("#message_missed").remove();
 
 
@@ -106,42 +115,94 @@ function function_next_question()
           $("#thebody").append(s_radio_buttons);
 
   // 3.
-          var s_done_button = "<a class=\"btn btn-primary btn-sm\" id=\"finished_button\" role=\"button\">Finished</a> ";
+          var s_done_button = "<a class=\"btn btn-primary btn-sm\" id=\"next_question_button\" role=\"button\">Next Question</a> ";
           $("#thebody").append(s_done_button);
 
 
 
   // 4.
-      $("#finished_button").click(
+      $("#next_question_button").click(
       function(){
-        // clear the timer
-        // get the value of the radio button
-        // check the answer for correct or incorrect (missed++ or correct++)
-        // if incorrect then display the correct answer
-        // if correct display the next question
+        // 1. clear the timer
+        // 2. get the value of the radio button
+        // 3. check the answer for correct or incorrect (missed++ or correct++)
+        // 4. if incorrect then display the correct answer
+        // 5. if correct display the next question
 
+        // 1.
         clearTimeout(o_timer);
         i_seconds_remaining = 30;
-        var s_i_val = $('input[name="answer"]:checked').val();
-        $("#game_status").text("You selected: " + s_i_val);
-        function_next_question();
-      });
 
+        // 2.
+        var s_i_val = $('input[name="answer"]:checked').val();
+        var i_val = parseInt(s_i_val, 10);
+        i_val--;
+        // 3.
+        var i_correct_number = questions[question_index].correctAnswer
+        if (i_val === i_correct_number)
+        {
+          correct++;
+        }
+        else
+        {
+          missed++;
+          $("#thebody").append("<div id=correct_answer_id >" + "The correct answer was " + i_correct) + "</div>";
+        }
+
+        question_index++;
+
+
+        if (i_val === i_correct_number)
+        {
+          function_next_question();
+        }
+        else // incorrect
+        {
+          setTimeout(function_next_question, 3000)
+        }
+        
+      });// end of $("#next_question_button").click
 
       var i_correct = 1 + questions[question_index].correctAnswer
-
-      $("#thebody").append("<div id=debug >" + "DEBUG: The correct answer is " + i_correct) + "</div>";
+      the_correct_answer = i_correct;
 
   // 5.
       o_timer = setTimeout(function_timeout_question, 1000);
-      question_index++;
+      // not here question_index++;
 } // end function next question
+
+
 
 function function_game_over()
 {
+  // display game over
+  // show score
+  // add play again button
+  // resister on click event for play again
+
   $("#game_status").text("Game over");
+  $("#thebody").append("<div id=correct_answer_id >" + "Your score is " + correct) + "</div>";
+
+  var s_play_again_button = "<a class=\"btn btn-primary btn-sm\" id=\"play_again_button\" role=\"button\">Play Again</a> ";
+  $("#thebody").append(s_play_again_button);
+
+
+
+  $("#play_again_button").click(
+    function(){
+    function_reset_game_variables();
+    function_display_initial_screen();
+
+  });// end of $("#play_again_button").click
 
 }
 
-
+function function_reset_game_variables()
+{
+  question_index = 0;
+  missed = 0;
+  correct = 0;
+  i_seconds_remaining = 30;
+  o_timer = 0;
+}
 
